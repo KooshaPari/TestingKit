@@ -1,5 +1,11 @@
 # TestingKit
 
+[![Build](https://img.shields.io/github/actions/workflow/status/KooshaPari/TestingKit/ci.yml?branch=main&label=build)](https://github.com/KooshaPari/TestingKit/actions)
+[![Release](https://img.shields.io/github/v/release/KooshaPari/TestingKit?include_prereleases&sort=semver)](https://github.com/KooshaPari/TestingKit/releases)
+[![License](https://img.shields.io/github/license/KooshaPari/TestingKit)](LICENSE)
+[![Phenotype](https://img.shields.io/badge/Phenotype-org-blueviolet)](https://github.com/KooshaPari)
+
+
 > Polyglot test-utilities monorepo for the Phenotype ecosystem.
 > Rust crates are functional today; Python crates are submodule placeholders
 > pending content.
