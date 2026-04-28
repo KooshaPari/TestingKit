@@ -21,11 +21,11 @@ vars:
       if [ -f "$(git rev-parse --show-toplevel)/rust/Cargo.toml" ]; then
         echo "$(git rev-parse --show-toplevel)/rust"
       fi
-  PYPROJECT:
+  PYPROJECTS:
     sh: |
       find "$(git rev-parse --show-toplevel)" \
         -path "*/.venv" -prune -o \
-        -name pyproject.toml -print -quit
+        -name pyproject.toml -print | sort
   RUST_CORE_PACKAGES: >-
     phenotype-testing
     phenotype-mock
@@ -52,7 +52,7 @@ tasks:
         echo "{{.DETECTED_TOOLCHAINS}}"
 
   build:
-    desc: Build the repo using the detected primary language toolchain.
+    desc: Build the repo using all detected language toolchains.
     cmds:
       - |
         set -eu
@@ -63,20 +63,22 @@ tasks:
             cargo build {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
             cargo build -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
           )
-          exit 0
         fi
 
-        if [ -n "{{.PYPROJECT}}" ]; then
-          project_dir="$(dirname "{{.PYPROJECT}}")"
-          (cd "${project_dir}" && uv build)
-          exit 0
+        if [ -n "{{.PYPROJECTS}}" ]; then
+          printf '%s\n' "{{.PYPROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            (cd "${project_dir}" && uv build)
+          done
         fi
 
-        echo "No supported build manifest found." >&2
-        exit 1
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.PYPROJECTS}}" ]; then
+          echo "No supported build manifest found." >&2
+          exit 1
+        fi
 
   test:
-    desc: Run the test suite for the detected primary language toolchain.
+    desc: Run the test suite for all detected language toolchains.
     cmds:
       - |
         set -eu
@@ -87,20 +89,22 @@ tasks:
             cargo test {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
             cargo test -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
           )
-          exit 0
         fi
 
-        if [ -n "{{.PYPROJECT}}" ]; then
-          project_dir="$(dirname "{{.PYPROJECT}}")"
-          (cd "${project_dir}" && uv run pytest)
-          exit 0
+        if [ -n "{{.PYPROJECTS}}" ]; then
+          printf '%s\n' "{{.PYPROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            (cd "${project_dir}" && uv run pytest)
+          done
         fi
 
-        echo "No supported test manifest found." >&2
-        exit 1
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.PYPROJECTS}}" ]; then
+          echo "No supported test manifest found." >&2
+          exit 1
+        fi
 
   lint:
-    desc: Run formatter and linter checks for the detected primary language toolchain.
+    desc: Run formatter and linter checks for all detected language toolchains.
     cmds:
       - |
         set -eu
@@ -112,24 +116,26 @@ tasks:
             cargo clippy {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} -- -D warnings &&
             cargo clippy -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}} -- -D warnings
           )
-          exit 0
         fi
 
-        if [ -n "{{.PYPROJECT}}" ]; then
-          project_dir="$(dirname "{{.PYPROJECT}}")"
-          (
-            cd "${project_dir}" &&
-            uv run ruff check . &&
-            uv run ruff format --check .
-          )
-          exit 0
+        if [ -n "{{.PYPROJECTS}}" ]; then
+          printf '%s\n' "{{.PYPROJECTS}}" | while IFS= read -r pyproject; do
+            project_dir="$(dirname "${pyproject}")"
+            (
+              cd "${project_dir}" &&
+              uv run ruff check . &&
+              uv run ruff format --check .
+            )
+          done
         fi
 
-        echo "No supported lint manifest found." >&2
-        exit 1
+        if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.PYPROJECTS}}" ]; then
+          echo "No supported lint manifest found." >&2
+          exit 1
+        fi
 
   clean:
-    desc: Remove build artifacts and caches for the detected primary language toolchain.
+    desc: Remove build artifacts and caches for all detected language toolchains.
     cmds:
       - |
         set -eu
