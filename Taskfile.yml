@@ -1,0 +1,32 @@
+version: "3"
+
+tasks:
+  default:
+    desc: Run the default validation task
+    cmds:
+      - task: build
+
+  build:
+    desc: Build the Rust workspace
+    dir: rust
+    cmds:
+      - cargo build --workspace
+
+  test:
+    desc: Run the Rust workspace test suite
+    dir: rust
+    cmds:
+      - cargo test --workspace
+
+  lint:
+    desc: Format-check and lint the Rust workspace
+    dir: rust
+    cmds:
+      - cargo fmt --check
+      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+  clean:
+    desc: Remove Rust build artifacts
+    dir: rust
+    cmds:
+      - cargo clean
