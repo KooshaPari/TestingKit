@@ -3,6 +3,7 @@ version: "3"
 vars:
   ROOT_DIR:
     sh: git rev-parse --show-toplevel
+  UV_CACHE_DIR: "{{.ROOT_DIR}}/.task-cache/uv"
   DETECTED_LANGUAGES:
     sh: |
       root="$(git rev-parse --show-toplevel)"
@@ -89,7 +90,7 @@ tasks:
         if [ -n "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
           printf '%s\n' "{{.ACTIVE_PYTHON_PROJECTS}}" | while IFS= read -r pyproject; do
             project_dir="$(dirname "${pyproject}")"
-            (cd "${project_dir}" && uv build)
+            (cd "${project_dir}" && UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv build)
           done
         elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
           echo "Skipping Python build by default; set TASK_INCLUDE_PYTHON=1 to include Python projects."
@@ -120,7 +121,7 @@ tasks:
             if [ -d "${project_dir}/tests" ] || find "${project_dir}" \
               -maxdepth 1 \
               -name 'test_*.py' -print -quit | grep -q .; then
-              (cd "${project_dir}" && uv run --with pytest pytest)
+              (cd "${project_dir}" && UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with pytest pytest)
             else
               echo "Skipping Python tests in ${project_dir}; no top-level tests found."
             fi
@@ -154,8 +155,8 @@ tasks:
             project_dir="$(dirname "${pyproject}")"
             (
               cd "${project_dir}" &&
-              uv run --with ruff ruff check . &&
-              uv run --with ruff ruff format --check .
+              UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with ruff ruff check . &&
+              UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv run --with ruff ruff format --check .
             )
           done
         elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
@@ -184,6 +185,7 @@ tasks:
         direct_paths = [
             root / ".ruff_cache",
             root / ".pytest_cache",
+            root / ".task-cache",
             root / "rust" / "target",
         ]
         generated_names = {".venv", "__pycache__", "build", "dist"}
