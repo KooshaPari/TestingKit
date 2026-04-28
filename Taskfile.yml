@@ -43,9 +43,9 @@ vars:
 
 tasks:
   default:
-    desc: Run the default validation task.
+    desc: Run the default validation chain.
     cmds:
-      - task: build
+      - task: check
 
   detect:
     desc: Show the detected language toolchains and active task coverage.
