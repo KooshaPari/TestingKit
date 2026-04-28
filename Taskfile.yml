@@ -29,7 +29,7 @@ vars:
         -name pyproject.toml -print | sort
   ACTIVE_PYTHON_PROJECTS:
     sh: |
-      if [ "${TASK_INCLUDE_PYTHON:-}" = "1" ]; then
+      if [ "${TASK_INCLUDE_PYTHON:-}" = "1" ] || [ "${TESTINGKIT_INCLUDE_PYTHON:-}" = "1" ]; then
         find "$(git rev-parse --show-toplevel)" \
           \( -path "*/.git" -o -path "*/.venv" -o -path "*/target" \) -prune -o \
           -name pyproject.toml -print | sort
@@ -62,7 +62,7 @@ tasks:
           echo "Python projects:"
           printf '%s\n' "{{.PYTHON_PROJECTS}}"
           if [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
-            echo "Set TASK_INCLUDE_PYTHON=1 to include Python projects in build/test/lint."
+            echo "Set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects in build/test/lint."
           fi
         fi
 
@@ -93,7 +93,7 @@ tasks:
             (cd "${project_dir}" && UV_CACHE_DIR="{{.UV_CACHE_DIR}}" uv build)
           done
         elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
-          echo "Skipping Python build by default; set TASK_INCLUDE_PYTHON=1 to include Python projects."
+          echo "Skipping Python build by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
         fi
 
         if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
@@ -127,7 +127,7 @@ tasks:
             fi
           done
         elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
-          echo "Skipping Python tests by default; set TASK_INCLUDE_PYTHON=1 to include Python projects."
+          echo "Skipping Python tests by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
         fi
 
         if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
@@ -160,7 +160,7 @@ tasks:
             )
           done
         elif [ -n "{{.PYTHON_PROJECTS}}" ]; then
-          echo "Skipping Python lint by default; set TASK_INCLUDE_PYTHON=1 to include Python projects."
+          echo "Skipping Python lint by default; set TESTINGKIT_INCLUDE_PYTHON=1 to include Python projects."
         fi
 
         if [ -z "{{.RUST_DIR}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
