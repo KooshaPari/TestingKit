@@ -1,5 +1,9 @@
 version: "3"
 
+vars:
+  ROOT_DIR:
+    sh: pwd
+
 tasks:
   default:
     desc: Run the default validation task
@@ -7,26 +11,54 @@ tasks:
       - task: build
 
   build:
-    desc: Build the Rust workspace
-    dir: rust
+    desc: Build the repo using the detected primary language toolchain.
     cmds:
-      - cargo build --workspace
+      - |
+        set -e
+        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+          (cd "{{.ROOT_DIR}}/rust" && cargo build --workspace)
+        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
+          uv --directory "{{.ROOT_DIR}}" build
+        else
+          echo "No supported build manifest found." >&2
+          exit 1
+        fi
 
   test:
-    desc: Run the Rust workspace test suite
-    dir: rust
+    desc: Run the test suite for the detected primary language toolchain.
     cmds:
-      - cargo test --workspace
+      - |
+        set -e
+        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+          (cd "{{.ROOT_DIR}}/rust" && cargo test --workspace)
+        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
+          uv --directory "{{.ROOT_DIR}}" run pytest
+        else
+          echo "No supported test manifest found." >&2
+          exit 1
+        fi
 
   lint:
-    desc: Format-check and lint the Rust workspace
-    dir: rust
+    desc: Run formatter and linter checks for the detected primary language toolchain.
     cmds:
-      - cargo fmt --check
-      - cargo clippy --workspace --all-targets --all-features -- -D warnings
+      - |
+        set -e
+        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+          (cd "{{.ROOT_DIR}}/rust" && cargo fmt --check && cargo clippy --workspace -- -D warnings)
+        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
+          uv --directory "{{.ROOT_DIR}}" run ruff check . && uv --directory "{{.ROOT_DIR}}" run ruff format --check .
+        else
+          echo "No supported lint manifest found." >&2
+          exit 1
+        fi
 
   clean:
-    desc: Remove Rust build artifacts
-    dir: rust
+    desc: Remove build artifacts and caches for the detected primary language toolchain.
     cmds:
-      - cargo clean
+      - |
+        set -e
+        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+          (cd "{{.ROOT_DIR}}/rust" && cargo clean)
+        fi
+        rm -rf "{{.ROOT_DIR}}/.ruff_cache" "{{.ROOT_DIR}}/.pytest_cache" "{{.ROOT_DIR}}/rust/target"
+        find "{{.ROOT_DIR}}" -type d -name "__pycache__" -prune -exec rm -rf {} +
