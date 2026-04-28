@@ -43,12 +43,12 @@ vars:
 
 tasks:
   default:
-    desc: Run the default validation task
+    desc: Run the default validation task.
     cmds:
       - task: build
 
   detect:
-    desc: Show the language toolchains detected for this repository.
+    desc: Show the detected language toolchains and active task coverage.
     cmds:
       - |
         set -eu
@@ -60,6 +60,13 @@ tasks:
         if [ -n "{{.PYTHON_PROJECTS}}" ] && [ -z "{{.ACTIVE_PYTHON_PROJECTS}}" ]; then
           echo "Python manifests detected; set TASK_INCLUDE_PYTHON=1 to include them in build/test/lint."
         fi
+
+  check:
+    desc: Run build, test, and lint tasks.
+    cmds:
+      - task: build
+      - task: test
+      - task: lint
 
   build:
     desc: Build the repo using all detected language toolchains.
