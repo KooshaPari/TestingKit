@@ -188,7 +188,15 @@ tasks:
             root / ".task-cache",
             root / "rust" / "target",
         ]
-        generated_names = {".venv", "__pycache__", "build", "dist"}
+        generated_names = {
+            ".venv",
+            ".mypy_cache",
+            ".pytest_cache",
+            ".ruff_cache",
+            "__pycache__",
+            "build",
+            "dist",
+        }
 
         for path in direct_paths:
             shutil.rmtree(path, ignore_errors=True)
