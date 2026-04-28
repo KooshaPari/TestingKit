@@ -3,6 +3,23 @@ version: "3"
 vars:
   ROOT_DIR:
     sh: git rev-parse --show-toplevel
+  RUST_DIR:
+    sh: |
+      if [ -f "$(git rev-parse --show-toplevel)/rust/Cargo.toml" ]; then
+        echo "$(git rev-parse --show-toplevel)/rust"
+      fi
+  PYPROJECT:
+    sh: |
+      find "$(git rev-parse --show-toplevel)" \
+        -path "*/.venv" -prune -o \
+        -name pyproject.toml -print -quit
+  RUST_CORE_PACKAGES: >-
+    phenotype-testing
+    phenotype-mock
+    phenotype-test-fixtures
+    phenotype-test-infra
+  RUST_SCANNER_PACKAGE: phenotype-compliance-scanner
+  RUST_SCANNER_FEATURES: async-scan
 
 tasks:
   default:
@@ -15,18 +32,17 @@ tasks:
     cmds:
       - |
         set -eu
-        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+        if [ -n "{{.RUST_DIR}}" ]; then
           (
-            cd "{{.ROOT_DIR}}/rust" &&
-            cargo build -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra &&
-            cargo build -p phenotype-compliance-scanner --no-default-features --features async-scan
+            cd "{{.RUST_DIR}}" &&
+            cargo build {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
+            cargo build -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
           )
           exit 0
         fi
 
-        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
-        if [ -n "${pyproject}" ]; then
-          project_dir="$(dirname "${pyproject}")"
+        if [ -n "{{.PYPROJECT}}" ]; then
+          project_dir="$(dirname "{{.PYPROJECT}}")"
           (cd "${project_dir}" && uv build)
           exit 0
         fi
@@ -39,18 +55,17 @@ tasks:
     cmds:
       - |
         set -eu
-        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+        if [ -n "{{.RUST_DIR}}" ]; then
           (
-            cd "{{.ROOT_DIR}}/rust" &&
-            cargo test -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra &&
-            cargo test -p phenotype-compliance-scanner --no-default-features --features async-scan
+            cd "{{.RUST_DIR}}" &&
+            cargo test {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} &&
+            cargo test -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}}
           )
           exit 0
         fi
 
-        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
-        if [ -n "${pyproject}" ]; then
-          project_dir="$(dirname "${pyproject}")"
+        if [ -n "{{.PYPROJECT}}" ]; then
+          project_dir="$(dirname "{{.PYPROJECT}}")"
           (cd "${project_dir}" && uv run pytest)
           exit 0
         fi
@@ -63,19 +78,18 @@ tasks:
     cmds:
       - |
         set -eu
-        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
+        if [ -n "{{.RUST_DIR}}" ]; then
           (
-            cd "{{.ROOT_DIR}}/rust" &&
+            cd "{{.RUST_DIR}}" &&
             cargo fmt --check &&
-            cargo clippy -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra -- -D warnings &&
-            cargo clippy -p phenotype-compliance-scanner --no-default-features --features async-scan -- -D warnings
+            cargo clippy {{range $package := splitList " " .RUST_CORE_PACKAGES}}-p {{$package}} {{end}} -- -D warnings &&
+            cargo clippy -p {{.RUST_SCANNER_PACKAGE}} --no-default-features --features {{.RUST_SCANNER_FEATURES}} -- -D warnings
           )
           exit 0
         fi
 
-        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
-        if [ -n "${pyproject}" ]; then
-          project_dir="$(dirname "${pyproject}")"
+        if [ -n "{{.PYPROJECT}}" ]; then
+          project_dir="$(dirname "{{.PYPROJECT}}")"
           (
             cd "${project_dir}" &&
             uv run ruff check . &&
@@ -92,8 +106,8 @@ tasks:
     cmds:
       - |
         set -eu
-        if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
-          (cd "{{.ROOT_DIR}}/rust" && cargo clean)
+        if [ -n "{{.RUST_DIR}}" ]; then
+          (cd "{{.RUST_DIR}}" && cargo clean)
         fi
         rm -rf \
           "{{.ROOT_DIR}}/.ruff_cache" \
