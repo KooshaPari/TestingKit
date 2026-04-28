@@ -2,7 +2,6 @@
 name = "phenotype-compliance-scanner"
 version.workspace = true
 edition.workspace = true
-rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 description = "Documentation and governance compliance scanning"
@@ -21,7 +20,7 @@ thiserror = "2.0"
 tracing = "0.1"
 
 # Optional dependencies
-tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "fs"], optional = true }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync", "fs", "macros"], optional = true }
 async-trait = { version = "0.1", optional = true }
 futures-util = { version = "0.3", optional = true }
 phenotype-health = { git = "https://github.com/KooshaPari/phenoShared.git", branch = "main", optional = true }

@@ -145,7 +145,10 @@ impl MockContext {
         let method_str = method.into();
 
         // Check if this is a new call or incrementing an existing one
-        if let Some(record) = calls.iter_mut().find(|r| r.method == method_str && r.args == args) {
+        if let Some(record) = calls
+            .iter_mut()
+            .find(|r| r.method == method_str && r.args == args)
+        {
             record.increment();
             return;
         }
@@ -166,7 +169,9 @@ impl MockContext {
     pub fn verify_called_with(&self, method: impl AsRef<str>, args: &[&str]) -> bool {
         let calls = self.calls.lock().unwrap();
         let args_owned: Vec<String> = args.iter().map(|&a| a.into()).collect();
-        calls.iter().any(|r| r.method == method.as_ref() && r.args == args_owned)
+        calls
+            .iter()
+            .any(|r| r.method == method.as_ref() && r.args == args_owned)
     }
 
     /// Verify exact call count
@@ -276,7 +281,7 @@ impl ExpectationBuilder {
             method: self.method.clone(),
             expected_args: self.expected_args,
         };
-        
+
         let expectation = Expectation {
             matcher,
             return_value: self.return_value,
