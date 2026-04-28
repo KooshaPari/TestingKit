@@ -3,6 +3,19 @@ version: "3"
 vars:
   ROOT_DIR:
     sh: git rev-parse --show-toplevel
+  DETECTED_TOOLCHAINS:
+    sh: |
+      root="$(git rev-parse --show-toplevel)"
+      detected=""
+      if [ -f "${root}/rust/Cargo.toml" ]; then
+        detected="${detected} rust"
+      fi
+      if find "${root}/python" \
+        -path "*/.venv" -prune -o \
+        -name pyproject.toml -print -quit 2>/dev/null | grep -q .; then
+        detected="${detected} python"
+      fi
+      echo "${detected# }"
   RUST_DIR:
     sh: |
       if [ -f "$(git rev-parse --show-toplevel)/rust/Cargo.toml" ]; then
@@ -27,11 +40,23 @@ tasks:
     cmds:
       - task: build
 
+  detect:
+    desc: Show the language toolchains detected for this repository.
+    cmds:
+      - |
+        set -eu
+        if [ -z "{{.DETECTED_TOOLCHAINS}}" ]; then
+          echo "No supported toolchains detected."
+          exit 1
+        fi
+        echo "{{.DETECTED_TOOLCHAINS}}"
+
   build:
     desc: Build the repo using the detected primary language toolchain.
     cmds:
       - |
         set -eu
+        echo "Detected toolchains: {{.DETECTED_TOOLCHAINS}}"
         if [ -n "{{.RUST_DIR}}" ]; then
           (
             cd "{{.RUST_DIR}}" &&
@@ -55,6 +80,7 @@ tasks:
     cmds:
       - |
         set -eu
+        echo "Detected toolchains: {{.DETECTED_TOOLCHAINS}}"
         if [ -n "{{.RUST_DIR}}" ]; then
           (
             cd "{{.RUST_DIR}}" &&
@@ -78,6 +104,7 @@ tasks:
     cmds:
       - |
         set -eu
+        echo "Detected toolchains: {{.DETECTED_TOOLCHAINS}}"
         if [ -n "{{.RUST_DIR}}" ]; then
           (
             cd "{{.RUST_DIR}}" &&
@@ -106,6 +133,7 @@ tasks:
     cmds:
       - |
         set -eu
+        echo "Detected toolchains: {{.DETECTED_TOOLCHAINS}}"
         if [ -n "{{.RUST_DIR}}" ]; then
           (cd "{{.RUST_DIR}}" && cargo clean)
         fi
