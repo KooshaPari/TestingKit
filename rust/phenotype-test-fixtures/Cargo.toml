@@ -2,7 +2,6 @@
 name = "phenotype-test-fixtures"
 version.workspace = true
 edition.workspace = true
-rust-version.workspace = true
 license.workspace = true
 authors.workspace = true
 
@@ -14,14 +13,6 @@ chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1.0", features = ["v4", "serde"] }
 tempfile = "3.8"
 rand = "0.8"
-
-# Resolve dangling sibling paths to canonical git deps.
-# phenoShared hosts the shared infra crates (error-core, port-interfaces).
-# HexaKit hosts phenotype-contracts (no canonical phenoShared crate yet).
-# port-traits renamed → port-interfaces (per ResilienceKit#16 finding).
-phenotype-error-core = { git = "https://github.com/KooshaPari/phenoShared.git", branch = "main" }
-phenotype-contracts = { git = "https://github.com/KooshaPari/HexaKit.git", branch = "main" }
-phenotype-port-interfaces = { git = "https://github.com/KooshaPari/phenoShared.git", branch = "main", package = "phenotype-port-interfaces" }
 
 [dev-dependencies]
 tokio-test = "0.4"

@@ -302,10 +302,10 @@ impl ComplianceScanner {
 
     /// Enable a specific rule
     pub fn enable_rule(&mut self, rule_id: &str) {
-        if !self.enabled_rules.contains(&rule_id.to_string()) {
-            if self.rules.iter().any(|r| r.id == rule_id) {
-                self.enabled_rules.push(rule_id.to_string());
-            }
+        if !self.enabled_rules.contains(&rule_id.to_string())
+            && self.rules.iter().any(|r| r.id == rule_id)
+        {
+            self.enabled_rules.push(rule_id.to_string());
         }
     }
 

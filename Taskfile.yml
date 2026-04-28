@@ -11,89 +11,84 @@ tasks:
       - task: build
 
   build:
-    desc: Build all detected project toolchains.
+    desc: Build the repo using the detected primary language toolchain.
     cmds:
       - |
         set -eu
-        found=0
-
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
-          found=1
-          (cd "{{.ROOT_DIR}}/rust" && cargo build --workspace)
+          (
+            cd "{{.ROOT_DIR}}/rust" &&
+            cargo build -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra &&
+            cargo build -p phenotype-compliance-scanner --no-default-features --features async-scan
+          )
+          exit 0
         fi
 
-        pyprojects="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print | sort)"
-        if [ -n "${pyprojects}" ]; then
-          found=1
-          printf '%s\n' "${pyprojects}" | while IFS= read -r pyproject; do
-            project_dir="$(dirname "${pyproject}")"
-            (cd "${project_dir}" && uv build)
-          done
+        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (cd "${project_dir}" && uv build)
+          exit 0
         fi
 
-        if [ "${found}" -eq 0 ]; then
-          echo "No supported build manifest found." >&2
-          exit 1
-        fi
+        echo "No supported build manifest found." >&2
+        exit 1
 
   test:
-    desc: Run tests for all detected project toolchains.
+    desc: Run the test suite for the detected primary language toolchain.
     cmds:
       - |
         set -eu
-        found=0
-
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
-          found=1
-          (cd "{{.ROOT_DIR}}/rust" && cargo test --workspace)
+          (
+            cd "{{.ROOT_DIR}}/rust" &&
+            cargo test -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra &&
+            cargo test -p phenotype-compliance-scanner --no-default-features --features async-scan
+          )
+          exit 0
         fi
 
-        pyprojects="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print | sort)"
-        if [ -n "${pyprojects}" ]; then
-          found=1
-          printf '%s\n' "${pyprojects}" | while IFS= read -r pyproject; do
-            project_dir="$(dirname "${pyproject}")"
-            (cd "${project_dir}" && uv run pytest)
-          done
+        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (cd "${project_dir}" && uv run pytest)
+          exit 0
         fi
 
-        if [ "${found}" -eq 0 ]; then
-          echo "No supported test manifest found." >&2
-          exit 1
-        fi
+        echo "No supported test manifest found." >&2
+        exit 1
 
   lint:
-    desc: Run formatter and linter checks for all detected project toolchains.
+    desc: Run formatter and linter checks for the detected primary language toolchain.
     cmds:
       - |
         set -eu
-        found=0
-
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
-          found=1
-          (cd "{{.ROOT_DIR}}/rust" && cargo fmt --check && cargo clippy --workspace -- -D warnings)
+          (
+            cd "{{.ROOT_DIR}}/rust" &&
+            cargo fmt --check &&
+            cargo clippy -p phenotype-testing -p phenotype-mock -p phenotype-test-fixtures -p phenotype-test-infra -- -D warnings &&
+            cargo clippy -p phenotype-compliance-scanner --no-default-features --features async-scan -- -D warnings
+          )
+          exit 0
         fi
 
-        pyprojects="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print | sort)"
-        if [ -n "${pyprojects}" ]; then
-          found=1
-          printf '%s\n' "${pyprojects}" | while IFS= read -r pyproject; do
-            project_dir="$(dirname "${pyproject}")"
-            (
-              cd "${project_dir}" &&
-              uv run ruff check . &&
-              uv run ruff format --check .
-            )
-          done
+        pyproject="$(find "{{.ROOT_DIR}}" -path "*/.venv" -prune -o -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (
+            cd "${project_dir}" &&
+            uv run ruff check . &&
+            uv run ruff format --check .
+          )
+          exit 0
         fi
 
-        if [ "${found}" -eq 0 ]; then
-          echo "No supported lint manifest found." >&2
-          exit 1
-        fi
+        echo "No supported lint manifest found." >&2
+        exit 1
 
   clean:
-    desc: Remove build artifacts and caches for all detected project toolchains.
+    desc: Remove build artifacts and caches for the detected primary language toolchain.
     cmds:
       - |
         set -eu

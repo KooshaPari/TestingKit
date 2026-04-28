@@ -109,7 +109,7 @@ impl PortAllocator {
         }
     }
 
-    pub fn next(&mut self) -> u16 {
+    pub fn allocate(&mut self) -> u16 {
         let port = self.current;
         self.current += 1;
         port
@@ -149,7 +149,7 @@ where
     loop {
         match f().await {
             Ok(result) => return Ok(result),
-            Err(e) if attempts < max_attempts => {
+            Err(_e) if attempts < max_attempts => {
                 attempts += 1;
                 let delay = std::time::Duration::from_millis(100 * 2_u64.pow(attempts));
                 tokio::time::sleep(delay).await;
@@ -166,9 +166,9 @@ mod tests {
     #[tokio::test]
     async fn test_port_allocator() {
         let mut allocator = PortAllocator::new(10000);
-        assert_eq!(allocator.next(), 10000);
-        assert_eq!(allocator.next(), 10001);
+        assert_eq!(allocator.allocate(), 10000);
+        assert_eq!(allocator.allocate(), 10001);
         allocator.reset();
-        assert_eq!(allocator.next(), 10000);
+        assert_eq!(allocator.allocate(), 10000);
     }
 }
