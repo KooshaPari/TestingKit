@@ -2,7 +2,7 @@ version: "3"
 
 vars:
   ROOT_DIR:
-    sh: pwd
+    sh: git rev-parse --show-toplevel
 
 tasks:
   default:
@@ -14,11 +14,17 @@ tasks:
     desc: Build the repo using the detected primary language toolchain.
     cmds:
       - |
-        set -e
+        set -eu
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
           (cd "{{.ROOT_DIR}}/rust" && cargo build --workspace)
-        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
-          uv --directory "{{.ROOT_DIR}}" build
+          exit 0
+        fi
+
+        pyproject="$(find "{{.ROOT_DIR}}" -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (cd "${project_dir}" && uv build)
+          exit 0
         else
           echo "No supported build manifest found." >&2
           exit 1
@@ -28,11 +34,17 @@ tasks:
     desc: Run the test suite for the detected primary language toolchain.
     cmds:
       - |
-        set -e
+        set -eu
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
           (cd "{{.ROOT_DIR}}/rust" && cargo test --workspace)
-        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
-          uv --directory "{{.ROOT_DIR}}" run pytest
+          exit 0
+        fi
+
+        pyproject="$(find "{{.ROOT_DIR}}" -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (cd "${project_dir}" && uv run pytest)
+          exit 0
         else
           echo "No supported test manifest found." >&2
           exit 1
@@ -42,11 +54,21 @@ tasks:
     desc: Run formatter and linter checks for the detected primary language toolchain.
     cmds:
       - |
-        set -e
+        set -eu
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
           (cd "{{.ROOT_DIR}}/rust" && cargo fmt --check && cargo clippy --workspace -- -D warnings)
-        elif [ -f "{{.ROOT_DIR}}/pyproject.toml" ] || find "{{.ROOT_DIR}}" -path "*/pyproject.toml" | grep -q .; then
-          uv --directory "{{.ROOT_DIR}}" run ruff check . && uv --directory "{{.ROOT_DIR}}" run ruff format --check .
+          exit 0
+        fi
+
+        pyproject="$(find "{{.ROOT_DIR}}" -name pyproject.toml -print -quit)"
+        if [ -n "${pyproject}" ]; then
+          project_dir="$(dirname "${pyproject}")"
+          (
+            cd "${project_dir}" &&
+            uv run ruff check . &&
+            uv run ruff format --check .
+          )
+          exit 0
         else
           echo "No supported lint manifest found." >&2
           exit 1
@@ -56,9 +78,12 @@ tasks:
     desc: Remove build artifacts and caches for the detected primary language toolchain.
     cmds:
       - |
-        set -e
+        set -eu
         if [ -f "{{.ROOT_DIR}}/rust/Cargo.toml" ]; then
           (cd "{{.ROOT_DIR}}/rust" && cargo clean)
         fi
-        rm -rf "{{.ROOT_DIR}}/.ruff_cache" "{{.ROOT_DIR}}/.pytest_cache" "{{.ROOT_DIR}}/rust/target"
+        rm -rf \
+          "{{.ROOT_DIR}}/.ruff_cache" \
+          "{{.ROOT_DIR}}/.pytest_cache" \
+          "{{.ROOT_DIR}}/rust/target"
         find "{{.ROOT_DIR}}" -type d -name "__pycache__" -prune -exec rm -rf {} +
