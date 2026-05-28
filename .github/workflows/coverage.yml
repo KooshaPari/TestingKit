@@ -1,4 +1,7 @@
 # Generated coverage workflow - calls reusable phenotype workflow
+permissions:
+  contents: read
+  pull-requests: read
 name: Coverage
 
 on:
