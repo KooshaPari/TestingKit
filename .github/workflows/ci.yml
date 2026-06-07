@@ -6,8 +6,15 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 
 jobs:
   ci:
-    uses: KooshaPari/phenotype-infrakit/.github/workflows/ci.yaml@main
+    uses: KooshaPari/phenotype-infrakit/.github/workflows/ci.yaml@0000000000000000000000000000000000000000 # placeholder SHA; source 404s; no live equivalent (audit 2026-06-05 found no matching file in 15 live org repos; prior candidate KooshaPari/phenotype-infrakit/.github/workflows/ci.yaml@0000000000000000000000000000000000000000 # placeholder SHA; source 404s; FORK from phenoShared/.github/workflows/reusable/ci.yaml@72b9c6cbdb24c49189b0e7c7395d874830d1ed87)
     secrets: inherit
