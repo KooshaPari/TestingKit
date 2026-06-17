@@ -1,22 +1,22 @@
 # TestingKit
 
+> **Boundary (2026-06-17):** Split testing plane — **Rust fleet utilities stay here**;
+> **Python consumers → [`phenotype-python-sdk/packages/testing-kit`](https://github.com/KooshaPari/phenotype-python-sdk/tree/main/packages/testing-kit)**.
+> See [`docs/boundary/DISPOSITION.md`](docs/boundary/DISPOSITION.md) and [`STATUS.md`](STATUS.md).
+
 > Polyglot test-utilities monorepo for the Phenotype ecosystem.
-> Rust crates are functional today; Python crates are submodule placeholders
-> pending content.
+> Rust crates are functional today; the Python tree is a **frozen migration source**
+> (canonical copy lives in phenotype-python-sdk).
 
 ## Status
 
 - **Rust workspace (`rust/`)** — present and buildable. Contains five crates
   with real source.
-- **Python tree (`python/`)** — directories are **empty git submodules**
-  (size 0, no upstream). The packages described in earlier drafts of this
-  README do not yet exist on PyPI or in this repo.
-- **License** — no `LICENSE` file is currently committed. This repo is **not**
-  yet under a published OSS license; treat it as source-available within the
-  Phenotype org until a license is added.
-
-This README will be re-expanded once the Python crates land and a license is
-chosen.
+- **Python tree (`python/`)** — present on `main` but **not** the install target;
+  use `phenotype-python-sdk/packages/testing-kit` (mcp-qa reconcile 2026-06-17).
+- **License** — MIT OR Apache-2.0 per `LICENSE` and workspace `Cargo.toml`.
+- **Archive** — repo is GitHub-archived; Rust boundary remains active per
+  [`BOUNDARY_OWNERS`](https://github.com/KooshaPari/phenotype-registry/blob/main/BOUNDARY_OWNERS.md).
 
 ## Layout
 
