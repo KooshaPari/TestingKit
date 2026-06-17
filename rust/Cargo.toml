@@ -5,6 +5,7 @@ members = [
     "phenotype-mock",
     "phenotype-test-fixtures",
     "phenotype-test-infra",
+    "phenotype-bdd",
     "phenotype-compliance-scanner",
 ]
 
@@ -21,3 +22,5 @@ serde = { version = "1.0", features = ["derive"] }
 mockall = "0.12"
 tracing = "0.1"
 uuid = "1"
+thiserror = "2"
+regex = "1"
