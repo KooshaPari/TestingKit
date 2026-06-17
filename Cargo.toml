@@ -1,0 +1,38 @@
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+rust-version = "1.75"
+repository = "https://github.com/KooshaPari/TestingKit"
+description = "Phenotype Testing Domain SDK"
+authors = ["kooshapari"]
+
+[workspace]
+resolver = "2"
+members = [
+  "crates/phenotype-bdd",
+]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+regex = "1"
+tokio = { version = "1", features = ["full"] }
+
+[package]
+name = "testingkit"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+description = "TestingKit — Phenotype Testing Domain SDK"
+homepage = "https://github.com/KooshaPari/TestingKit"
+repository = "https://github.com/KooshaPari/TestingKit"
+readme = "README.md"
+publish = false
+keywords = ["phenotype", "testing"]
+categories = ["development-tools"]
+authors = ["kooshapari"]
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
