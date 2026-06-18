@@ -1,0 +1,15 @@
+[package]
+name = "phenotype-contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Design-by-contract assertions and invariants for Rust"
+repository = "https://github.com/KooshaPari/TestingKit"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde = { workspace = true }
+thiserror = { workspace = true }
