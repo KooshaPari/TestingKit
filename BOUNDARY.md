@@ -24,3 +24,5 @@
 Fleet repos import TestingKit; per-repo test boilerplate absorbs here over time. HexaKit retains `MIGRATED.md` pointer stubs until downstream references clear.
 
 See [docs/disposition/wave-b-absorption.md](./docs/disposition/wave-b-absorption.md) for Wave B lane status.
+
+**Block-C disposition:** [docs/boundary/DISPOSITION.md](./docs/boundary/DISPOSITION.md) — split testing boundary (Rust canonical here; Python → SDK).
