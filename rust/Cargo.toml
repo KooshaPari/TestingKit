@@ -3,6 +3,7 @@ resolver = "2"
 members = [
     "phenotype-testing",
     "phenotype-mock",
+    "phenotype-contract",
     "phenotype-test-fixtures",
     "phenotype-test-infra",
     "phenotype-bdd",
