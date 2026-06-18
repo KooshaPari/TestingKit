@@ -127,3 +127,12 @@ documentation — earlier drafts of this README described APIs (`assert_golden`,
 `async_test`, `MockClient`, a `phenotype-compliance-scanner` CLI binary, a
 `qa-kit` umbrella package, dual MIT/Apache license) that did not exist in
 the source tree.
+
+## Documentation
+
+This repository includes the following cross-cutting documents:
+
+- [`AGENTS.md`](AGENTS.md) — operating instructions for AI agents and human contributors
+- [`SPEC.md`](SPEC.md) — formal specification of behavior and contracts
+- [`docs/`](docs/) — design notes, ADRs, and supporting documentation (see [`docs/index.md`](docs/index.md))
+
