@@ -1,5 +1,25 @@
 # TestingKit
 
+## Quickstart
+
+> Phenotype-org testing domain SDK: BDD, property-based, fuzzing, contract
+
+```bash
+# Clone, build, test
+git clone https://github.com/KooshaPari/TestingKit.git
+cd TestingKit
+```
+
+```bash
+pip install testingkit
+```
+```python
+from testingkit import ...
+```
+
+See [SPEC.md](SPEC.md) for the full specification and [llms.txt](llms.txt) for machine-readable metadata.
+
+
 > **Boundary (2026-06-17):** Split testing plane — **Rust fleet utilities stay here**;
 > **Python consumers → [`phenotype-python-sdk/packages/testing-kit`](https://github.com/KooshaPari/phenotype-python-sdk/tree/main/packages/testing-kit)**.
 > See [`docs/boundary/DISPOSITION.md`](docs/boundary/DISPOSITION.md) and [`STATUS.md`](STATUS.md).
