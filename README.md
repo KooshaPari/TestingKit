@@ -1,28 +1,24 @@
 # TestingKit
 
 > Polyglot test-utilities monorepo for the Phenotype ecosystem.
-> Rust crates are functional today; Python crates are submodule placeholders
-> pending content.
+> Both Rust crates and Python packages are functional with real source code.
 
 ## Status
 
 - **Rust workspace (`rust/`)** — present and buildable. Contains five crates
   with real source.
-- **Python tree (`python/`)** — directories are **empty git submodules**
-  (size 0, no upstream). The packages described in earlier drafts of this
-  README do not yet exist on PyPI or in this repo.
+- **Python tree (`python/`)** — **seven in-tree packages** with real source code
+  (see layout below). These are standalone Python packages with `pyproject.toml`
+  manifests, not submodules.
 - **License** — no `LICENSE` file is currently committed. This repo is **not**
   yet under a published OSS license; treat it as source-available within the
   Phenotype org until a license is added.
-
-This README will be re-expanded once the Python crates land and a license is
-chosen.
 
 ## Layout
 
 ```
 TestingKit/
-├── python/                                    # all entries are empty submodules
+├── python/                                    # seven in-tree Python packages
 │   ├── pheno-testing/
 │   ├── pheno-quality/
 │   ├── pheno-analysis-cli/
@@ -102,7 +98,9 @@ cargo clippy --workspace -- -D warnings
 cargo fmt --check
 ```
 
-The Python tree currently has no buildable content.
+See each Python package's `pyproject.toml` for build instructions. Most use
+`setuptools` or `hatchling` as the build backend and can be installed with
+`pip install -e python/<package>/`.
 
 ## Consuming the Rust crates
 
@@ -116,9 +114,9 @@ phenotype-mock    = { git = "https://github.com/KooshaPari/TestingKit", branch =
 
 ## Roadmap
 
-- Initialize the Python submodules (or replace them with in-tree crates).
 - Add a `LICENSE` file (likely Apache-2.0 OR MIT, per Phenotype-org default).
 - Publish stable Rust crates to crates.io.
+- Publish stable Python packages to PyPI.
 
 ## Contributing
 

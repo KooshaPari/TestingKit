@@ -381,4 +381,129 @@ mod tests {
         let no_match: Option<String> = ctx.get_return_value("get", &["id-2".to_string()]);
         assert_eq!(no_match, None);
     }
+
+    #[test]
+    fn test_mock_context_default_trait() {
+        let ctx: MockContext = Default::default();
+        assert_eq!(ctx.call_count("anything"), 0);
+        assert!(!ctx.verify_called("anything"));
+    }
+
+    #[test]
+    fn test_call_record_returns_chaining() {
+        let r = CallRecord::new("foo", vec!["bar".to_string()]).returns("baz");
+        assert_eq!(r.return_value, Some("baz".to_string()));
+        assert_eq!(r.count, 0);
+    }
+
+    #[test]
+    fn test_call_record_increment() {
+        let mut r = CallRecord::new("x", vec![]);
+        assert_eq!(r.count, 0);
+        r.increment();
+        assert_eq!(r.count, 1);
+        r.increment();
+        assert_eq!(r.count, 2);
+    }
+
+    #[test]
+    fn test_matcher_matches_args_no_expected() {
+        let m = Matcher::new("anything");
+        assert!(m.matches_args(&[]));
+        assert!(m.matches_args(&["a".to_string(), "b".to_string()]));
+    }
+
+    #[test]
+    fn test_matcher_matches_args_with_expected() {
+        let m = Matcher::new("get").with_args(vec!["id-1"]);
+        assert!(m.matches_args(&["id-1".to_string()]));
+        assert!(!m.matches_args(&["id-2".to_string()]));
+        assert!(!m.matches_args(&[]));
+    }
+
+    #[test]
+    fn test_expectation_is_satisfied_any_times() {
+        let e = Expectation {
+            matcher: Matcher::new("x"),
+            return_value: None,
+            times: None,
+            called_count: 0,
+        };
+        assert!(e.is_satisfied());
+
+        let e2 = Expectation {
+            matcher: Matcher::new("x"),
+            return_value: None,
+            times: Some(3),
+            called_count: 3,
+        };
+        assert!(e2.is_satisfied());
+    }
+
+    #[test]
+    fn test_expectation_is_not_satisfied() {
+        let e = Expectation {
+            matcher: Matcher::new("x"),
+            return_value: None,
+            times: Some(5),
+            called_count: 2,
+        };
+        assert!(!e.is_satisfied());
+    }
+
+    #[test]
+    fn test_verify_all_empty() {
+        let ctx = MockContext::new();
+        assert!(ctx.verify_all().is_ok());
+    }
+
+    #[test]
+    fn test_verify_all_mismatch() {
+        let ctx = MockContext::new();
+        ctx.expect("get")
+            .with_args(vec!["id-1"])
+            .returns("v")
+            .times(2)
+            .build();
+        // We didn't actually call the expectation; called_count stays 0 vs expected 2.
+        let result = ctx.verify_all();
+        assert!(result.is_err());
+        let errs = result.unwrap_err();
+        assert_eq!(errs.len(), 1);
+        assert!(errs[0].contains("expected 2 calls"));
+    }
+
+    #[test]
+    fn test_mock_return_helper() {
+        assert_eq!(mock_return("hello"), Some("hello".to_string()));
+        assert_eq!(mock_return(String::from("x")), Some("x".to_string()));
+    }
+
+    #[test]
+    fn test_verify_helper_ok() {
+        let r: Result<(), String> = verify::<()>(true, "should be true");
+        assert!(r.is_ok());
+    }
+
+    #[test]
+    fn test_verify_helper_err() {
+        let r: Result<(), String> = verify::<()>(false, "boom");
+        assert!(r.is_err());
+        assert_eq!(r.unwrap_err(), "boom");
+    }
+
+    #[test]
+    fn test_expectation_builder_times_zero() {
+        let ctx = MockContext::new();
+        ctx.expect("noop").times(0).build();
+        // Called_count is 0, expected 0 -> satisfied
+        assert!(ctx.verify_all().is_ok());
+    }
+
+    #[test]
+    fn test_get_return_value_no_expectation() {
+        let ctx = MockContext::new();
+        let r = ctx.get_return_value("never_set", &[]);
+        assert!(r.is_none());
+    }
 }

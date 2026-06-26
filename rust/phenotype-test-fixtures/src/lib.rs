@@ -128,4 +128,89 @@ mod tests {
         let env = TestEnv::new().unwrap();
         assert!(env.path().exists());
     }
+
+    #[test]
+    fn test_data_with_metadata() {
+        let data = TestData::new("widget", 7i64)
+            .with_metadata("k1", "v1")
+            .with_metadata("k2", "v2");
+        assert_eq!(data.metadata.get("k1"), Some(&"v1".to_string()));
+        assert_eq!(data.metadata.get("k2"), Some(&"v2".to_string()));
+        assert_eq!(data.metadata.len(), 2);
+    }
+
+    #[test]
+    fn test_data_unique_ids() {
+        let a = TestData::<i32>::new("a", 1);
+        let b = TestData::<i32>::new("b", 2);
+        assert_ne!(a.id, b.id);
+    }
+
+    #[test]
+    fn test_env_set_env_var() {
+        let mut env = TestEnv::new().unwrap();
+        env.set_env("MY_KEY", "MY_VAL");
+        env.set_env("MY_KEY", "OVERRIDE");
+        assert_eq!(env.env_vars.get("MY_KEY"), Some(&"OVERRIDE".to_string()));
+        assert_eq!(env.env_vars.len(), 1);
+    }
+
+    #[test]
+    fn test_test_step_construction() {
+        let step = TestStep {
+            name: "step1".to_string(),
+            action: "act".to_string(),
+            expected_result: "ok".to_string(),
+        };
+        assert_eq!(step.name, "step1");
+        assert_eq!(step.action, "act");
+        assert_eq!(step.expected_result, "ok");
+    }
+
+    #[test]
+    fn test_test_scenario_construction() {
+        let scenario = TestScenario {
+            name: "scenario_a".to_string(),
+            description: "desc".to_string(),
+            setup: vec![TestStep {
+                name: "s".to_string(),
+                action: "a".to_string(),
+                expected_result: "r".to_string(),
+            }],
+            execution: vec![],
+            teardown: vec![],
+        };
+        assert_eq!(scenario.name, "scenario_a");
+        assert_eq!(scenario.setup.len(), 1);
+        assert_eq!(scenario.execution.len(), 0);
+        assert_eq!(scenario.teardown.len(), 0);
+    }
+
+    #[test]
+    fn test_assertions_assert_ok() {
+        let r: Result<i32, &str> = Ok(42);
+        let v = assertions::assert_ok(r);
+        assert_eq!(v, 42);
+    }
+
+    #[test]
+    #[should_panic(expected = "Expected Ok")]
+    fn test_assertions_assert_ok_panics_on_err() {
+        let r: Result<i32, &str> = Err("nope");
+        let _ = assertions::assert_ok(r);
+    }
+
+    #[test]
+    fn test_assertions_assert_err() {
+        let r: Result<i32, &str> = Err("nope");
+        let e = assertions::assert_err(r);
+        assert_eq!(e, "nope");
+    }
+
+    #[test]
+    #[should_panic(expected = "Expected Err")]
+    fn test_assertions_assert_err_panics_on_ok() {
+        let r: Result<i32, &str> = Ok(42);
+        let _ = assertions::assert_err(r);
+    }
 }
