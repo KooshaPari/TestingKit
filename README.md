@@ -18,12 +18,14 @@
 
 ```
 TestingKit/
-├── python/                                    # seven in-tree Python packages
-│   ├── pheno-testing/
-│   ├── pheno-quality/
-│   ├── pheno-analysis-cli/
-│   ├── mcp-qa/
-│   └── qa-kit/
+├── python/                                          # seven in-tree Python packages
+│   ├── mcp-qa/                                      # MCP server testing framework (20K+ LOC)
+│   ├── pheno-analysis-cli/                          # Unified code analysis CLI suite
+│   ├── pheno-quality/                               # Core quality analysis library
+│   ├── pheno-quality-cli/                           # Quality analysis CLI tool
+│   ├── pheno-quality-tools/                         # Quality analysis tools & framework
+│   ├── pheno-testing-cli/                           # Testing toolkit CLI (property, coverage, etc.)
+│   └── qa-kit/                                      # QA testing & reporting framework
 └── rust/
     ├── phenotype-testing/                     # async/sync test helpers
     ├── phenotype-mock/                        # call-recording mock context
@@ -32,7 +34,61 @@ TestingKit/
     └── phenotype-compliance-scanner/          # docs/governance compliance scans
 ```
 
+## Python packages — what's actually there
+
+The Python tree contains **~93K LOC across 7 packages** (verified 2026-06). Each package
+is a standalone installable Python package with its own `pyproject.toml` manifest.
+
+### `mcp-qa`
+
+Comprehensive testing framework for Model Context Protocol (MCP) servers. Provides
+mocking, collaboration testing, UI testing, OAuth flow testing, and reporting.
+
+```python
+from mcp_qa.mocking.server import create_mock_server
+
+server = await create_mock_server()
+await server.start()
+# ... run tests against mock server ...
+await server.stop()
+```
+
+Subpackages: `mocking`, `collaboration`, `core`, `reporters`, `ui`, `oauth`, `adapters`.
+
+### `pheno-analysis-cli`
+
+Unified code analysis suite. Provides CLI tools for quality analysis, dead-code
+detection, test-coverage analysis, and response-time analysis.
+
+### `pheno-quality`
+
+Core quality analysis library. Provides compliance scanning, architectural
+validation, integration gates, and plugin infrastructure.
+
+### `pheno-quality-cli`
+
+CLI tooling for `pheno-quality`. Exposes quality checks via a command-line
+interface with rich output formatting.
+
+### `pheno-quality-tools`
+
+Extended quality analysis framework with registry-based plugin discovery,
+integration gates, and architectural validators.
+
+### `pheno-testing-cli`
+
+Comprehensive testing toolkit extracted from the PhenoSDK. Generates test data,
+property-based tests, duration tracking, and security testing utilities.
+
+### `qa-kit`
+
+Standalone QA testing and reporting framework designed for use outside the
+Phenotype ecosystem. Deployable as an independent tool.
+
 ## Rust crates — what's actually there
+
+Python packages are in-tree packages with real source code; Rust crates are
+in the `rust/` workspace.
 
 ### `phenotype-testing`
 
