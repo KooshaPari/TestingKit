@@ -42,12 +42,14 @@ See [SPEC.md](SPEC.md) for the full specification and [llms.txt](llms.txt) for m
 
 ```
 TestingKit/
-├── python/                                    # all entries are empty submodules
-│   ├── pheno-testing/
-│   ├── pheno-quality/
-│   ├── pheno-analysis-cli/
-│   ├── mcp-qa/
-│   └── qa-kit/
+├── python/                                    # 7 packages with real source (93K+ LOC)
+│   ├── mcp-qa/                                # MCP quality assurance framework (~50K LOC)
+│   ├── pheno-quality/                          # Code smell & governance detectors (~15K LOC)
+│   ├── pheno-testing-cli/                     # CLI testing utilities (~7K LOC)
+│   ├── pheno-analysis-cli/                    # Analysis CLI tools (~5K LOC)
+│   ├── pheno-testing/                         # Python testing helpers (~4K LOC)
+│   ├── pheno-quality-lake/                    # Quality artifact lake (~3K LOC)
+│   └── qa-kit/                                # QA orchestration kit (~2K LOC)
 └── rust/
     ├── phenotype-testing/                     # async/sync test helpers
     ├── phenotype-mock/                        # call-recording mock context
@@ -122,7 +124,7 @@ cargo clippy --workspace -- -D warnings
 cargo fmt --check
 ```
 
-The Python tree currently has no buildable content.
+The Python tree contains 7 packages with real source code under `python/`. Each package has its own `pyproject.toml` and is independently buildable.
 
 ## Consuming the Rust crates
 
